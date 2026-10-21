@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://cnrjkcum210vj"]
+
+[ext_resource type="Script" uid="uid://qhbqo1t5unk0" path="res://road_manager.gd" id="1_glv2v"]
+[ext_resource type="Script" uid="uid://comdt53v6rd0q" path="res://player_car.gd" id="2_uu6xs"]
+[ext_resource type="Script" uid="uid://c3gsb7c5kipod" path="res://traffic_manager.gd" id="3_r0du0"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qa0am"]
+size = Vector3(40, 0.1, 100)
+
+[sub_resource type="BoxMesh" id="BoxMesh_63i6q"]
+size = Vector3(2, 0.8, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_11f2w"]
+albedo_color = Color(1, 0.06666667, 0.08627451, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iqyj8"]
+size = Vector3(2, 0.8, 4)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_iqyj8"]
+top_radius = 0.45
+bottom_radius = 0.45
+height = 0.22236328
+
+[node name="main" type="Node3D" unique_id=2029018467]
+script = ExtResource("1_glv2v")
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=215962499]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
+mesh = SubResource("BoxMesh_qa0am")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=984542165]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
+
+[node name="PlayerCar" type="CharacterBody3D" parent="." unique_id=2206242]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 5)
+script = ExtResource("2_uu6xs")
+
+[node name="CarBody" type="MeshInstance3D" parent="PlayerCar" unique_id=2117080237]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_63i6q")
+surface_material_override/0 = SubResource("StandardMaterial3D_11f2w")
+
+[node name="Camera3D" type="Camera3D" parent="PlayerCar" unique_id=608778380]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 10)
+current = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerCar" unique_id=2084996890]
+shape = SubResource("BoxShape3D_iqyj8")
+
+[node name="FrontLeftWheel" type="MeshInstance3D" parent="PlayerCar" unique_id=630494322]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -1, 0, -1.2)
+mesh = SubResource("CylinderMesh_iqyj8")
+
+[node name="FrontRightWheel" type="MeshInstance3D" parent="PlayerCar" unique_id=1332457279]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 1, 0, -1.2)
+mesh = SubResource("CylinderMesh_iqyj8")
+
+[node name="RearLeftWheel" type="MeshInstance3D" parent="PlayerCar" unique_id=2091227873]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -1, 0, 1.2)
+mesh = SubResource("CylinderMesh_iqyj8")
+
+[node name="RearRightWheel" type="MeshInstance3D" parent="PlayerCar" unique_id=2085255911]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 1, 0, 1.2)
+mesh = SubResource("CylinderMesh_iqyj8")
+
+[node name="TrafficManager" type="Node3D" parent="." unique_id=2137323274]
+script = ExtResource("3_r0du0")
