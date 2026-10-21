@@ -24,7 +24,7 @@ Overtake traffic and earn in-game money while driving.
 
 📸 Screenshots
 
-Coming soon!
+soon
 
 🚀 How to Run
 
@@ -36,3 +36,11 @@ Coming soon!
 👨‍💻 Developer
 
 Independent game developer learning and building games with Godot.
+
+🌞 Day and Night Gameplay
+
+The game features a day and night environment, bringing changing lighting and atmosphere to the racing experience.
+
+Daytime
+
+Nighttime
