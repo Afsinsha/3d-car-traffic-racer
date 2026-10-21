@@ -243,7 +243,7 @@ func create_road_barriers(z_position: float):
 			0.4,
 			z_position - road_length * 0.5)
 		var material = StandardMaterial3D.new()
-		material.albedo_color = Color(0.65, 0.65, 0.65)
+		material.albedo_color = Color(0.488, 0.488, 0.488, 1.0)
 		material.metallic = 0.3
 		material.roughness = 0.5
 		barrier.material_override = material

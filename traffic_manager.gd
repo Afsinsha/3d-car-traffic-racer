@@ -3,16 +3,18 @@ extends Node3D
 @export var traffic_distance: float = 140.0
 @export var spawn_interval: float = 2.0
 @export var lane_width: float = 3.0
-
+var world_environment: WorldEnvironment
 var spawn_timer: float = 0.0
 var score: int = 0
 var high_score: int = 0
 const HIGH_SCORE_FILE = "user://high_score.save"
 var score_label: Label
 var difficulty_level: int = 1
+var is_night: bool = false
+const NIGHT_SCORE: int = 100
+var sun: DirectionalLight3D
 var traffic_cars: Array[Area3D] = []
 var traffic_speeds: Dictionary = {}
-
 @onready var player = $"../PlayerCar"
 
 
@@ -29,13 +31,44 @@ func _ready():
 	ui.name = "ScoreUI"
 	ui.add_child(score_label)
 	get_tree().root.add_child.call_deferred(ui)
+	sun = get_node_or_null("../Sun")
+	world_environment = get_tree().root.find_child(
+		"WorldEnvironment", true, false
+	) as WorldEnvironment
+	print("=== LIGHTING CONNECTION CHECK ===")
+	print("Running script: ", get_path())
+	print("WorldEnvironment found: ", world_environment != null)
+	print("Sun found: ", sun != null)
+	if world_environment and world_environment.environment:
+		print("Environment resource: ", world_environment.environment)
+		print("Sky resource: ", world_environment.environment.sky)
+	set_day_mode()
+	is_night = false
+	if world_environment and world_environment.environment:
+		var sky = world_environment.environment.sky
+		if sky and sky.sky_material is ProceduralSkyMaterial:
+			print(
+				"Sky top color after day mode: ",
+				(sky.sky_material as ProceduralSkyMaterial).sky_top_color
+			)
 
 
 func _process(delta):
+	var cycle_score = score % 200
+	var should_be_night = cycle_score >= 100
+	if should_be_night != is_night:
+		is_night = should_be_night
+		if is_night:
+			set_night_mode()
+			print("NIGHT MODE ACTIVATED!")
+		else:
+			set_day_mode()
+			print("MORNING MODE ACTIVATED!")
+
 	if score_label:
 		score_label.text = "SCORE: " + str(score)
-		difficulty_level = 1 + (score / 50)
-		player.max_speed = 25.0 + (difficulty_level - 1) * 3.0
+	difficulty_level = 1 + int(score / 50)
+	player.max_speed = 25.0 + (difficulty_level - 1) * 3.0
 	spawn_timer += delta
 	spawn_interval = max(0.8, 2.0 - (difficulty_level - 1) * 0.15)
 	if spawn_timer >= spawn_interval:
@@ -48,7 +81,6 @@ func _process(delta):
 func spawn_traffic_car():
 	var car = Area3D.new()
 	car.name = "TrafficCar"
-	# Car body
 	var body = MeshInstance3D.new()
 	var mesh = BoxMesh.new()
 	var car_type = randi() % 3
@@ -60,7 +92,6 @@ func spawn_traffic_car():
 		mesh.size = Vector3(2.2, 1.0, 4.5)
 	body.mesh = mesh
 	body.position.y = 0.5
-	# Random car color
 	var material = StandardMaterial3D.new()
 	material.albedo_color = Color(
 		randf_range(0.2, 1.0),
@@ -278,3 +309,66 @@ func save_high_score():
 	var file = FileAccess.open(HIGH_SCORE_FILE, FileAccess.WRITE)
 	file.store_var(high_score)
 	file.close()
+
+
+func get_procedural_sky_material() -> ProceduralSkyMaterial:
+	if not world_environment or not world_environment.environment:
+		print("ERROR: WorldEnvironment or Environment missing!")
+		return null
+	var env = world_environment.environment
+	if env.sky == null:
+		env.sky = Sky.new()
+	if not (env.sky.sky_material is ProceduralSkyMaterial):
+		env.sky.sky_material = ProceduralSkyMaterial.new()
+	return env.sky.sky_material as ProceduralSkyMaterial
+
+
+
+
+func set_day_mode():
+	if world_environment and world_environment.environment:
+		var sky_material = get_procedural_sky_material()
+		if sky_material:
+			sky_material.sky_top_color = Color("#5B91C5")
+			sky_material.sky_horizon_color = Color("#C4DCEC")
+			sky_material.ground_bottom_color = Color("#658653")
+			sky_material.ground_horizon_color = Color("#A5BD8C")
+		var env = world_environment.environment
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = Color("#D6DCE5")
+		env.ambient_light_energy = 0.5
+		env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+		env.tonemap_exposure = 0.75
+	if sun:
+		sun.light_energy = 0.65
+		sun.visible = true
+	var left_beam = player.get_node_or_null("LeftHeadlightBeam")
+	var right_beam = player.get_node_or_null("RightHeadlightBeam")
+	if left_beam:
+		left_beam.visible = false
+	if right_beam:
+		right_beam.visible = false
+
+
+
+
+func set_night_mode():
+	if world_environment and world_environment.environment:
+		var sky_material = get_procedural_sky_material()
+		if sky_material:
+			sky_material.sky_top_color = Color("#080D20")
+			sky_material.sky_horizon_color = Color("#202943")
+			sky_material.ground_bottom_color = Color("#070A12")
+			sky_material.ground_horizon_color = Color("#111827")
+		var env = world_environment.environment
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = Color("#8994B5")
+		env.ambient_light_energy = 0.2
+	if sun:
+		sun.light_energy = 0.15
+	var left_beam = player.get_node_or_null("LeftHeadlightBeam")
+	var right_beam = player.get_node_or_null("RightHeadlightBeam")
+	if left_beam:
+		left_beam.visible = true
+	if right_beam:
+		right_beam.visible = true

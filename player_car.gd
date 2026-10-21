@@ -100,6 +100,23 @@ func _ready():
 	right_light.position.x = 0.65
 	add_child(right_light)
 
+	# Actual headlight beams
+	var left_beam = SpotLight3D.new()
+	left_beam.name = "LeftHeadlightBeam"
+	left_beam.position = Vector3(-0.65, 0.65, -2.02)
+	left_beam.rotation_degrees.x = -5.0
+	left_beam.spot_range = 35.0
+	left_beam.spot_angle = 35.0
+	left_beam.light_energy = 3.0
+	left_beam.light_color = Color(1.0, 0.9, 0.7)
+	left_beam.visible = false
+	add_child(left_beam)
+	
+	var right_beam = left_beam.duplicate()
+	right_beam.name = "RightHeadlightBeam"
+	right_beam.position.x = 0.65
+	add_child(right_beam)
+
 	var left_brake = MeshInstance3D.new()
 	var brake_mesh = BoxMesh.new()
 	brake_mesh.size = Vector3(0.55, 0.18, 0.12)
